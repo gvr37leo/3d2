@@ -9,39 +9,39 @@ public class Camera {
     public Vec3f forward;
     public float ratio;
     public float fov;
-    public float far;
-    public float near;
-
+    public float far = 10;
+    public float near = 1;
+    public float[][] zbuffer;
 
     Camera(){
-//        zbuffer = new int[app.width][app.height];
+
     }
 
     void draw(Mesh mesh){
         Vec3f[] screenCoords = new Vec3f[mesh.vertices.length];
         Matrix wstoss = Matrix.viewTransForm();
         for(int i = 0; i < mesh.vertices.length; i++){
-            Vec3f v = mesh.vertices[i];
-            screenCoords[i] = wstoss.mult(v.c());
+            Vec3f v = mesh.vertices[i].c();
+            v.x /= v.z;
+            v.y /= v.z;
+            screenCoords[i] = wstoss.mult(v);
         }
         for (int i = 0; i < mesh.faces.length; i += 3) {
             Vec3f p1 = screenCoords[mesh.faces[i]];
             Vec3f p2 = screenCoords[mesh.faces[i + 1]];
             Vec3f p3 = screenCoords[mesh.faces[i + 2]];
 
-            triangle(p1, p2, p3, null, (Vec2i pos) -> {
-                putPixel(pos.x, pos.y, Color.white);
+            triangle(p1, p2, p3, (Vec2i pos) -> {
+                Utils.putPixel(pos.x, pos.y, Color.white);
             });
 
 
         }
     }
 
-    public void triangle(Vec3f t0, Vec3f t1, Vec3f t2, int[][] zbuffer, ILocationGiver locationGiver){
+    public void triangle(Vec3f t0, Vec3f t1, Vec3f t2, ILocationGiver locationGiver){
         Vec3f[] vs = {t0,t1,t2};
         Arrays.sort(vs, Comparator.comparingDouble(a -> a.y));
-
-        float total_height = vs[2].y-vs[0].y;
 
         IFromToer fromToer = (Vec3f topLeft, Vec3f topright, Vec3f bottomLeft, Vec3f bottomRight) -> {
             EdgeWalkerVert edgeWalkerL = new EdgeWalkerVert(topLeft, bottomLeft, null, null);
@@ -49,7 +49,11 @@ public class Camera {
             while (edgeWalkerL.pos.y < bottomLeft.y){
                 EdgeWalkerHor horizontalWalker = new EdgeWalkerHor(edgeWalkerL.pos.c(), edgeWalkerR.pos.c(), null, null);
                 while (horizontalWalker.pos.x < edgeWalkerR.pos.x){
-                    locationGiver.giveLocation(new Vec2i((int)horizontalWalker.pos.x, (int) horizontalWalker.pos.y));
+                    Vec2i pos = new Vec2i((int)horizontalWalker.pos.x, (int) horizontalWalker.pos.y);
+                    if(horizontalWalker.pos.z < zbuffer[pos.x][pos.y]){
+                        locationGiver.giveLocation(pos);
+                        zbuffer[pos.x][pos.y] = horizontalWalker.pos.z;
+                    }
                     horizontalWalker.stepHorizontal();
                 }
                 edgeWalkerL.stepVertical();
@@ -57,7 +61,10 @@ public class Camera {
             }
         };
 
-        Vec3f middleRight = vs[0].lerp(vs[2], (vs[2].y - vs[0].y) / (vs[1].y - vs[0].y));
+        Vec3f middleRight;
+        if(vs[1].y == vs[0].y)middleRight = vs[0].c();
+        else middleRight = vs[0].lerp(vs[2], (vs[1].y - vs[0].y) / (vs[2].y - vs[0].y));
+
         if(middleRight.x < vs[1].x){
             Vec3f temp = middleRight;
             middleRight = vs[1];
@@ -75,12 +82,7 @@ public class Camera {
         void giveLocation(Vec2i pos);
     }
 
-    public void putPixel(int x, int y, Color color){
-        PApplet app = Globals.app;
-        if(x >= app.width || x < 0 || y >= app.height || y < 0)return;
-        int index = y * (app.width) + x;
-        app.pixels[index] = app.color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-    }
+
 
     class EdgeWalkerVert {
         public Vec3f pos;

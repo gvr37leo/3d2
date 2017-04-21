@@ -68,4 +68,9 @@ public class Mesh {
         };
         return cube;
     }
+
+    public Mesh applyTransformation(Matrix m){
+        for (Vec3f vertex : vertices)m.mult(vertex);
+        return this;
+    }
 }
