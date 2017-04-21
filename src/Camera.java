@@ -9,7 +9,7 @@ public class Camera {
     public Vec3f forward;
     public float ratio;
     public float fov;
-    public float far = 10;
+    public float far = 5;
     public float near = 1;
     public float[][] zbuffer;
 
@@ -82,7 +82,14 @@ public class Camera {
         void giveLocation(Vec2i pos);
     }
 
-
+    public static void draw2dArray(Vec2i pos, float[][] array){
+        for(int x = 0; x < array.length; x++){
+            for(int y = 0; y < array[0].length; y++){
+                float mapped = Utils.map(array[x][y], 0, 5, 1, 0);
+                Utils.putPixel(x + pos.x, y + pos.y, new Color(mapped, mapped, mapped));
+            }
+        }
+    }
 
     class EdgeWalkerVert {
         public Vec3f pos;

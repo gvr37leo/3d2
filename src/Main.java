@@ -31,7 +31,7 @@ public class Main extends PApplet {
     public void draw(){
         clear();
         camera.zbuffer = new float[Globals.screenSize.x][Globals.screenSize.y];
-        Utils.init2dArray(camera.zbuffer,10);
+        Utils.init2dArray(camera.zbuffer,camera.far);
         loadPixels();
 
         HashMap<Character, Boolean> keyMap = Globals.keyMap;
@@ -50,7 +50,7 @@ public class Main extends PApplet {
         Matrix objToWs = trans.mult(scale).mult(rot);
         cube.applyTransformation(objToWs);
         camera.draw(cube);
-        Utils.draw2dArray(new Vec2i(Globals.screenSize.x,0), camera.zbuffer);
+        Camera.draw2dArray(new Vec2i(Globals.screenSize.x,0), camera.zbuffer);
         updatePixels();
     }
 

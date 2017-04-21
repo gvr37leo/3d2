@@ -4,14 +4,7 @@ import java.awt.*;
 
 public class Utils {
 
-    public static void draw2dArray(Vec2i pos, float[][] array){
-        for(int x = 0; x < array.length; x++){
-            for(int y = 0; y < array[0].length; y++){
-                float mapped = map(array[x][y], 0, 10, 1, 0);
-                putPixel(x + pos.x, y + pos.y, new Color(mapped, mapped, mapped));
-            }
-        }
-    }
+
 
     public static void init2dArray(float[][] array, float def){
         for(int x = 0; x < array.length; x++){
