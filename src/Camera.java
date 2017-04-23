@@ -44,20 +44,29 @@ public class Camera {
         Arrays.sort(vs, Comparator.comparingDouble(a -> a.y));
 
         IFromToer fromToer = (Vec3f topLeft, Vec3f topright, Vec3f bottomLeft, Vec3f bottomRight) -> {
-            EdgeWalkerVert edgeWalkerL = new EdgeWalkerVert(topLeft, bottomLeft, null, null);
-            EdgeWalkerVert edgeWalkerR = new EdgeWalkerVert(topright, bottomRight, null, null);
-            while (edgeWalkerL.pos.y < bottomLeft.y){
-                EdgeWalkerHor horizontalWalker = new EdgeWalkerHor(edgeWalkerL.pos.c(), edgeWalkerR.pos.c(), null, null);
-                while (horizontalWalker.pos.x < edgeWalkerR.pos.x){
-                    Vec2i pos = new Vec2i((int)horizontalWalker.pos.x, (int) horizontalWalker.pos.y);
-                    if(horizontalWalker.pos.z < zbuffer[pos.x][pos.y]){
+            float[] fromsLeft = new float[]{topLeft.x, topLeft.z};
+            float[] tosLeft = new float[]{bottomLeft.x, bottomLeft.z};
+            EdgeWalker leftWalker = new EdgeWalker(topLeft.y, bottomLeft.y, fromsLeft, tosLeft);
+
+            float[] fromsRight = new float[]{topright.x, topright.z};
+            float[] tosRight = new float[]{bottomRight.x, bottomRight.z};
+            EdgeWalker rightWalker = new EdgeWalker(topright.y, bottomRight.y,fromsRight, tosRight);
+
+            while (leftWalker.counter < bottomLeft.y){
+                float[] fromH = new float[]{leftWalker.pos[1]};//y never changes and will always be equal to the verticl walker's counter value
+                float[] toH = new float[]{rightWalker.pos[1]};
+                EdgeWalker horizontalWalker = new EdgeWalker(leftWalker.pos[0], rightWalker.pos[0], fromH, toH);
+
+                while (horizontalWalker.counter < rightWalker.pos[0]){//pos[0] contains the x coordinate
+                    Vec2i pos = new Vec2i((int)horizontalWalker.counter, (int)leftWalker.counter);
+                    if(horizontalWalker.pos[0] < zbuffer[pos.x][pos.y]){
                         locationGiver.giveLocation(pos);
-                        zbuffer[pos.x][pos.y] = horizontalWalker.pos.z;
+                        zbuffer[pos.x][pos.y] = horizontalWalker.pos[0];
                     }
-                    horizontalWalker.stepHorizontal();
+                    horizontalWalker.step();
                 }
-                edgeWalkerL.stepVertical();
-                edgeWalkerR.stepVertical();
+                leftWalker.step();
+                rightWalker.step();
             }
         };
 
@@ -91,41 +100,26 @@ public class Camera {
         }
     }
 
-    class EdgeWalkerVert {
-        public Vec3f pos;
-        public Vec3f posInc;
+    class EdgeWalker{
+        float[] pos;
+        float[] incs;
+        float counter;
 
-        public Vec2f uv;
-        public Vec2f uvInc;
-
-        EdgeWalkerVert(Vec3f from, Vec3f to, Vec2f uvfrom, Vec2f uvto){
-            pos = from;
-            float ydiff = to.y - from.y;
-            posInc = to.c().sub(from).scale(1 / ydiff);
+        public EdgeWalker(float from, float to,float[] froms, float[] tos){
+            this.counter = from;
+            float diff = to - from;
+            pos = froms;
+            incs = new float[tos.length];
+            for (int i = 0; i < froms.length; i++) {
+                incs[i] = (tos[i] - froms[i]) / diff;
+            }
         }
 
-        public void stepVertical(){
-            pos.add(posInc);
-//            uv.add(uvInc);
-        }
-    }
-
-    class EdgeWalkerHor {
-        public Vec3f pos;
-        public Vec3f posInc;
-
-        public Vec2f uv;
-        public Vec2f uvInc;
-
-        EdgeWalkerHor(Vec3f from, Vec3f to, Vec2f uvfrom, Vec2f uvto){
-            pos = from;
-            float xdiff = to.x - from.x;
-            posInc = to.c().sub(from).scale(1 / xdiff);
-        }
-
-        public void stepHorizontal(){
-            pos.add(posInc);
-//            uv.add(uvInc);
+        public void step(){
+            for (int i = 0; i < pos.length; i++) {
+                pos[i] += incs[i];
+            }
+            counter++;
         }
     }
 }
