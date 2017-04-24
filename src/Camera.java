@@ -70,11 +70,15 @@ public class Camera {
             middleRightUv = mesh.uvs[tuples.get(0).getKey()].lerp(mesh.uvs[tuples.get(2).getKey()], ratio);
         }
 
-
         if(middleRight.x < middle.x){
             Vec3f temp = middleRight;
             middleRight = middle;
             middle = temp;
+
+            Vec2f tempuv = middleRightUv;
+            middleRightUv = mesh.uvs[tuples.get(1).getKey()];
+            mesh.uvs[tuples.get(1).getKey()] = tempuv;
+            //instead of swapping everything should probably swap tuples
         }
         Mesh tempMesh = new Mesh();
         tempMesh.vertices = new Vec3f[]{top, middle, middleRight,bot};
