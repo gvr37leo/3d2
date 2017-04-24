@@ -19,6 +19,7 @@ public class Main extends PApplet {
         Globals.init();
         Globals.screenSize = new Vec2i(width/2, height/2);
         Globals.app = this;
+        Globals.wstoss = Matrix.viewTransForm();
 
         camera = new Camera();
         Matrix rot = Matrix.rot(new Vec3f(0,0,1), (float) Math.PI / 2);

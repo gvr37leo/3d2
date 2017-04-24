@@ -7,6 +7,7 @@ public class Globals {
     static HashMap<Character, Boolean> keyMap;
     static Vec2i screenSize;
     static PApplet app;
+    static Matrix wstoss;
 
     public static void init(){
         keyMap = new HashMap<>();
