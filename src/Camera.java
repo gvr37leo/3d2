@@ -2,6 +2,9 @@ import javafx.util.Pair;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
+
+
 
 public class Camera {
     public Vec3f pos;
@@ -31,7 +34,7 @@ public class Camera {
         for (int i = 0; i < mesh.faces.length; i += 3) {
             int _i = i;
             triangle(mesh, mesh.faces[i], mesh.faces[i + 1], mesh.faces[i + 2], (Vec2i pos, EdgeWalker edgeWalker) -> {
-                Utils.putPixel(pos.x, pos.y, clownColor(_i));
+                Utils.putPixel(pos.x, pos.y, new Color(0f, edgeWalker.get(EdgeWalkerCode.uvx), edgeWalker.get(EdgeWalkerCode.uvy)));
             });
         }
     }
@@ -84,24 +87,32 @@ public class Camera {
             Vec3f bottomLeft = tempMesh.vertices[ibottomLeft];
             Vec3f bottomRight = tempMesh.vertices[ibottomRight];
 
-            float[] fromsLeft = new float[]{topLeft.x, topLeft.z, tempMesh.uvs[itopLeft].x, tempMesh.uvs[itopLeft].y};
-            float[] tosLeft = new float[]{bottomLeft.x, bottomLeft.z, tempMesh.uvs[ibottomLeft].x, tempMesh.uvs[ibottomLeft].y};
-            EdgeWalker leftWalker = new EdgeWalker(topLeft.y, bottomLeft.y, fromsLeft, tosLeft);
+            ArrayList<Triplet<EdgeWalkerCode, Float, Float>> fromtosLeft = new ArrayList<>();
+            fromtosLeft.add(new Triplet<>(EdgeWalkerCode.x ,topLeft.x,bottomLeft.x));
+            fromtosLeft.add(new Triplet<>(EdgeWalkerCode.z ,topLeft.z,bottomLeft.z));
+            fromtosLeft.add(new Triplet<>(EdgeWalkerCode.uvx ,tempMesh.uvs[itopLeft].x,tempMesh.uvs[ibottomLeft].x));
+            fromtosLeft.add(new Triplet<>(EdgeWalkerCode.uvy ,tempMesh.uvs[itopLeft].y,tempMesh.uvs[ibottomLeft].y));
+            EdgeWalker leftWalker = new EdgeWalker(topLeft.y, bottomLeft.y, fromtosLeft);
 
-            float[] fromsRight = new float[]{topright.x, topright.z, tempMesh.uvs[itopright].x, tempMesh.uvs[itopright].y};
-            float[] tosRight = new float[]{bottomRight.x, bottomRight.z, tempMesh.uvs[ibottomRight].x, tempMesh.uvs[ibottomRight].x};
-            EdgeWalker rightWalker = new EdgeWalker(topright.y, bottomRight.y,fromsRight, tosRight);
+            ArrayList<Triplet<EdgeWalkerCode, Float, Float>> fromtosRight = new ArrayList<>();
+            fromtosRight.add(new Triplet<>(EdgeWalkerCode.x ,topright.x,bottomRight.x));
+            fromtosRight.add(new Triplet<>(EdgeWalkerCode.z ,topright.z,bottomRight.z));
+            fromtosRight.add(new Triplet<>(EdgeWalkerCode.uvx ,tempMesh.uvs[itopright].x,tempMesh.uvs[ibottomRight].x));
+            fromtosRight.add(new Triplet<>(EdgeWalkerCode.uvy ,tempMesh.uvs[itopright].y,tempMesh.uvs[ibottomRight].y));
+            EdgeWalker rightWalker = new EdgeWalker(topLeft.y, bottomLeft.y, fromtosRight);
 
             while (leftWalker.counter < bottomLeft.y){
-                float[] fromH = new float[]{leftWalker.pos[1], leftWalker.pos[2], leftWalker.pos[3]};//y never changes and will always be equal to the verticl walker's counter value
-                float[] toH = new float[]{rightWalker.pos[1],rightWalker.pos[2],rightWalker.pos[3]};
-                EdgeWalker horizontalWalker = new EdgeWalker(leftWalker.pos[0], rightWalker.pos[0], fromH, toH);
+                ArrayList<Triplet<EdgeWalkerCode, Float, Float>> fromToHor = new ArrayList<>();
+                fromToHor.add(new Triplet<>(EdgeWalkerCode.z ,leftWalker.get(EdgeWalkerCode.z), rightWalker.get(EdgeWalkerCode.z)));
+                fromToHor.add(new Triplet<>(EdgeWalkerCode.uvx ,leftWalker.get(EdgeWalkerCode.uvx), rightWalker.get(EdgeWalkerCode.uvx)));
+                fromToHor.add(new Triplet<>(EdgeWalkerCode.uvy ,leftWalker.get(EdgeWalkerCode.uvy), rightWalker.get(EdgeWalkerCode.uvy)));
+                EdgeWalker horizontalWalker = new EdgeWalker(leftWalker.get(EdgeWalkerCode.x), rightWalker.get(EdgeWalkerCode.x), fromToHor);
 
-                while (horizontalWalker.counter < rightWalker.pos[0]){//pos[0] contains the x coordinate
+                while (horizontalWalker.counter < rightWalker.get(EdgeWalkerCode.x)){
                     Vec2i pos = new Vec2i((int)horizontalWalker.counter, (int)leftWalker.counter);
-                    if(horizontalWalker.pos[0] < zbuffer[pos.x][pos.y]){
+                    if(horizontalWalker.get(EdgeWalkerCode.z) < zbuffer[pos.x][pos.y]){
                         locationGiver.giveLocation(pos, horizontalWalker);
-                        zbuffer[pos.x][pos.y] = horizontalWalker.pos[0];
+                        zbuffer[pos.x][pos.y] = horizontalWalker.get(EdgeWalkerCode.z);
                     }
                     horizontalWalker.step();
                 }
@@ -131,27 +142,39 @@ public class Camera {
         }
     }
 
-    class EdgeWalker{
-        float[] pos;
-        float[] incs;
-        float counter;
+    enum EdgeWalkerCode{
+        x(0),y(1),z(2),uvx(3),uvy(4);
 
-        public EdgeWalker(float from, float to,float[] froms, float[] tos){
+        public final int val;
+        private EdgeWalkerCode(int val){
+            this.val = val;
+        }
+    }
+    class EdgeWalker{
+        HashMap<EdgeWalkerCode, Float> posMap = new HashMap<>();
+        HashMap<EdgeWalkerCode, Float> incsMap = new HashMap<>();
+        float counter;
+//        Pair<EdgeWalkerCode, Pair<Float, Float>>
+        EdgeWalker(float from, float to,ArrayList<Triplet<EdgeWalkerCode, Float, Float>> fromtos){
             this.counter = from;
             float diff = to - from;
-            pos = froms;
-            incs = new float[tos.length];
-            for (int i = 0; i < froms.length; i++) {
-                incs[i] = (tos[i] - froms[i]) / diff;
+            for (int i = 0; i < fromtos.size(); i++) {
+                posMap.put(fromtos.get(i).left, fromtos.get(i).middle);
+                incsMap.put(fromtos.get(i).left, (fromtos.get(i).right - fromtos.get(i).middle) / diff);
             }
         }
 
-        public void step(){
-            for (int i = 0; i < pos.length; i++) {
-                pos[i] += incs[i];
+        void step(){
+            for(EdgeWalkerCode key:posMap.keySet()){
+                posMap.put(key, posMap.get(key) + incsMap.get(key));
             }
             counter++;
         }
+
+        float get(EdgeWalkerCode code){
+            return posMap.get(code);
+        }
+
     }
 
     public Color clownColor(int i){

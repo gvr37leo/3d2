@@ -43,7 +43,7 @@ public class Main extends PApplet {
             theta -= rotationSpeed * dt;
         }
 
-        Mesh cube = Mesh.generateCube();
+        Mesh cube = Mesh.generateTriangle();
         Matrix rot = Matrix.rot(new Vec3f(0,1,0),theta);
         Matrix trans = Matrix.translate(new Vec3f(0,0,2));
         Matrix scale = Matrix.scale(new Vec3f(1,1,1));

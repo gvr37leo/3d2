@@ -6,7 +6,6 @@ public class Mesh {
 
     static Mesh generateTriangle(){
         Mesh triangle = new Mesh();
-        float f = 0.5f;
         triangle.vertices = new Vec3f[]{
                 new Vec3f(0,1,0),
                 new Vec3f(1,-1,0),
@@ -29,6 +28,13 @@ public class Mesh {
     static Mesh generateCube(){
         float f = 0.5f;
         Mesh cube = new Mesh();
+//           0-------1
+//          /|      /|
+//         / |     / |
+//        3--|----2  |
+//        |  4----|--5
+//        | /     | /
+//        7-------6
         cube.vertices = new Vec3f[]{
                 new Vec3f(-f,f,f),
                 new Vec3f(f,f,f),

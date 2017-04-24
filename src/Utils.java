@@ -25,4 +25,18 @@ public class Utils {
     public static float map(float val1,float  start1,float  stop1,float  start2,float  stop2){
         return start2 + (stop2 - start2) * ((val1 - start1) / (stop1 - start1));
     }
+
+
+}
+
+class Triplet<L,M,R>{
+    L left;
+    M middle;
+    R right;
+
+    Triplet(L left, M middle, R right){
+        this.left = left;
+        this.middle = middle;
+        this.right = right;
+    }
 }
