@@ -1,6 +1,7 @@
 import processing.core.PApplet;
 import processing.event.KeyEvent;
 
+import java.awt.*;
 import java.util.HashMap;
 
 public class Main extends PApplet {
@@ -43,7 +44,7 @@ public class Main extends PApplet {
             theta -= rotationSpeed * dt;
         }
 
-        Mesh cube = Mesh.generateTriangle();
+        Mesh cube = Mesh.generateQuad();
         Matrix rot = Matrix.rot(new Vec3f(0,1,0),theta);
         Matrix trans = Matrix.translate(new Vec3f(0,0,2));
         Matrix scale = Matrix.scale(new Vec3f(1,1,1));

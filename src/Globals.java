@@ -8,9 +8,11 @@ public class Globals {
     static Vec2i screenSize;
     static PApplet app;
     static Matrix wstoss;
+    static Texture testTexture;
 
     public static void init(){
         keyMap = new HashMap<>();
+        testTexture = new Texture("resources/test.png");
     }
 
     public static void keyPressed(KeyEvent event) {

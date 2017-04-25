@@ -3,6 +3,7 @@ public class Mesh {
     int[] edges;
     int[] faces;
     Vec2f[] uvs;
+    Texture texture;
 
     static Mesh generateTriangle(){
         Mesh triangle = new Mesh();
@@ -22,6 +23,7 @@ public class Mesh {
         triangle.faces = new int[]{
                 0,1,2
         };
+        triangle.texture = Globals.testTexture;
         return triangle;
     }
 
@@ -72,7 +74,32 @@ public class Mesh {
 
                 4,7,6, 4,6,5
         };
+        cube.texture = Globals.testTexture;
         return cube;
+    }
+
+    static Mesh generateQuad(){
+        Mesh quad = new Mesh();
+        quad.vertices = new Vec3f[]{
+                new Vec3f(-1,1,0),
+                new Vec3f(1,1,0),
+                new Vec3f(1,-1,0),
+                new Vec3f(-1,-1,0),
+        };
+        quad.uvs = new Vec2f[]{
+                new Vec2f(0,0),
+                new Vec2f(1,0),
+                new Vec2f(1,1),
+                new Vec2f(0,1)
+        };
+        quad.edges = new int[]{
+                0,1, 1,2, 2,3, 3,0
+        };
+        quad.faces = new int[]{
+                0,1,2, 2,3,0
+        };
+        quad.texture = Globals.testTexture;
+        return quad;
     }
 
     public Mesh applyTransformation(Matrix m){
