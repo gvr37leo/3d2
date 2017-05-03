@@ -14,7 +14,7 @@ public class Main extends PApplet {
     Camera camera;
     float dt = 1.0f / 60;
     float rotationSpeed = 4;
-    float theta;
+    Vec3f rotation = new Vec3f(0,0,0);
 
     public void setup(){
         Globals.init();
@@ -38,19 +38,28 @@ public class Main extends PApplet {
 
         HashMap<Character, Boolean> keyMap = Globals.keyMap;
         if(keyMap.get('a') != null && keyMap.get('a')){
-            theta += rotationSpeed * dt;
+            rotation.y += rotationSpeed * dt;
         }
         if(keyMap.get('d') != null && keyMap.get('d')){
-            theta -= rotationSpeed * dt;
+            rotation.y -= rotationSpeed * dt;
+        }
+        if(keyMap.get('w') != null && keyMap.get('w')){
+            rotation.x += rotationSpeed * dt;
+        }
+        if(keyMap.get('s') != null && keyMap.get('s')){
+            rotation.x -= rotationSpeed * dt;
+        }
+        if(keyMap.get('q') != null && keyMap.get('q')){
+            rotation.z += rotationSpeed * dt;
+        }
+        if(keyMap.get('e') != null && keyMap.get('e')){
+            rotation.z -= rotationSpeed * dt;
         }
 
         Mesh cube = Mesh.generateQuad();
-        Matrix rot = Matrix.rot(new Vec3f(0,1,0),theta);
-        Matrix trans = Matrix.translate(new Vec3f(0,0,2));
-        Matrix scale = Matrix.scale(new Vec3f(1,1,1));
 
-        Matrix objToWs = trans.mult(scale).mult(rot);
-        cube.applyTransformation(objToWs);
+        Matrix TRS = Matrix.TRS(new Vec3f(0,0,2), rotation, new Vec3f(1,1,1));
+        cube.applyTransformation(TRS);
         camera.draw(cube);
         Camera.draw2dArray(new Vec2i(Globals.screenSize.x,0), camera.zbuffer);
         updatePixels();
