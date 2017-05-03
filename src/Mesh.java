@@ -3,7 +3,7 @@ public class Mesh {
     int[] edges;
     int[] faces;
     Vec2f[] uvs;
-    Texture texture;
+    Shader shader;
 
     static Mesh generateTriangle(){
         Mesh triangle = new Mesh();
@@ -23,7 +23,7 @@ public class Mesh {
         triangle.faces = new int[]{
                 0,1,2
         };
-        triangle.texture = Globals.testTexture;
+        triangle.shader = new UnlitTextureShader(triangle, Globals.testTexture);
         return triangle;
     }
 
@@ -74,7 +74,7 @@ public class Mesh {
 
                 4,7,6, 4,6,5
         };
-        cube.texture = Globals.testTexture;
+        cube.shader = new ClownShader(cube);
         return cube;
     }
 
@@ -98,7 +98,7 @@ public class Mesh {
         quad.faces = new int[]{
                 0,1,2, 2,3,0
         };
-        quad.texture = Globals.testTexture;
+        quad.shader = new UnlitTextureShader(quad, Globals.testTexture);
         return quad;
     }
 

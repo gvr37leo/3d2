@@ -34,7 +34,9 @@ public class Camera {
         for (int i = 0; i < mesh.faces.length; i += 3) {
             int _i = i;
             triangle(mesh, mesh.faces[i], mesh.faces[i + 1], mesh.faces[i + 2], (Vec2i pos, EdgeWalker edgeWalker) -> {
-                Color c = mesh.texture.getPixel(new Vec2f(edgeWalker.get(EdgeWalkerCode.uvx), edgeWalker.get(EdgeWalkerCode.uvy)));
+//                mesh.texture.getPixel(new Vec2f(edgeWalker.get(EdgeWalkerCode.uvx), edgeWalker.get(EdgeWalkerCode.uvy)));
+
+                Color c = mesh.shader.frag(0);
                 Utils.putPixel(pos.x, pos.y, c);
             });
         }

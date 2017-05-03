@@ -56,7 +56,7 @@ public class Main extends PApplet {
             rotation.z -= rotationSpeed * dt;
         }
 
-        Mesh cube = Mesh.generateQuad();
+        Mesh cube = Mesh.generateCube();
 
         Matrix TRS = Matrix.TRS(new Vec3f(0,0,2), rotation, new Vec3f(1,1,1));
         cube.applyTransformation(TRS);
