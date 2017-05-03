@@ -14,18 +14,6 @@ public class Camera {
     public float far = 5;
     public float near = 1;
     public float[][] zbuffer;
-    Color[] colors = new Color[]{
-            Color.yellow,
-            Color.blue,
-            Color.cyan,
-            Color.magenta,
-            Color.red,
-            Color.pink,
-            Color.green,
-            Color.gray,
-            new Color(0x6E2B02)
-    };
-
     Camera(){
 
     }
@@ -182,9 +170,5 @@ public class Camera {
             return posMap.get(code);
         }
 
-    }
-
-    public Color clownColor(int i){
-        return colors[i % colors.length];
     }
 }
