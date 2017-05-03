@@ -9,6 +9,7 @@ public class Globals {
     static PApplet app;
     static Matrix wstoss;
     static Texture testTexture;
+    static Vec3f lightDir = new Vec3f(0, 0, 1);
 
     public static void init(){
         keyMap = new HashMap<>();

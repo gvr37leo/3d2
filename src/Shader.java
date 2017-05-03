@@ -12,6 +12,6 @@ public abstract class Shader {
 
     abstract Vec3f vert(Vec3f v);
 
-    abstract Color frag(int vertexIndex);
+    abstract Color frag(int faceIndex);
 
 }

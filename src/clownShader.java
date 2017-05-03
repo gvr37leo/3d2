@@ -21,7 +21,7 @@ public class ClownShader extends Shader{
         return v;
     }
 
-    Color frag(int vertexIndex) {
-        return colors[vertexIndex % colors.length];
+    Color frag(int faceIndex) {
+        return colors[faceIndex % colors.length];
     }
 }

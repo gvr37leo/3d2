@@ -74,7 +74,7 @@ public class Mesh {
 
                 4,7,6, 4,6,5
         };
-        cube.shader = new ClownShader(cube);
+        cube.shader = new NormalShader(cube,Globals.lightDir);
         return cube;
     }
 
